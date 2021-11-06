@@ -1,0 +1,65 @@
+/*
+    33. CONEXION CON PANTALLA OLED DE 0,96" POR I2C CON CONTROLADOR SSD1306
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    FECHA : NOVIEMBRE 2021
+
+    Libreria del I2C que maneja el LCD OLED : Adafruit_SSD1306 y Adfruit-GFX-Library.
+    Estas librerías las descargamos desde el propio entorno de programación a través del menú superior > Herramientas> Administrar Bibliotecas y busca SSD1306, de entre las que salgan busca Adafruit_SSD1306 y 
+    después sino se muestra de forma automática instalar GFX , buscaremos GFX y de las que salgan seleccionamos la indicada Adafruit.
+
+    También podéis bajarlas de :
+    
+    https://github.com/adafruit/Adafruit_SSD1306
+    https://github.com/adafruit/Adafruit-GFX-Library
+        
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+    
+*/
+ 
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+ 
+
+// DECLARAMOS LAS VARIABLES QUE INDICAN LOS PINES QUE VAMOS A UTILIZAR
+// TODO LO HACEMOS MEDIANTE EL CANAL I2C
+
+String frase;                  // Para la frase que queremos mostrar en el lcd
+int ancho = 128;               // ancho pantalla en puntos
+int alto = 64;                 // alto pantalla en puntos
+ 
+Adafruit_SSD1306 display(ancho, alto, &Wire, -1);
+ 
+void setup() {
+ 
+  // Iniciamos la pantalla y si no esta, entrara en un bucle sin fin
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    while (true);
+  }
+  
+  display.clearDisplay();               // Limpiamos pantalla  
+
+}
+ 
+void loop() {
+
+    display.drawRect(20, 18, 20, 28, SSD1306_WHITE); // Dibuja un rectángulo
+
+    frase = "! Hola !";
+    display.setTextSize(2);               // Tamaño del texto  
+    display.setTextColor(SSD1306_WHITE);  // Color WHITE para que se vea el texto, el color sera el del propio lcd
+    display.setCursor(0, 1);              // Posición del texto en puntos
+    display.println(frase);               // Imprimimos la frase
+    display.display();                    // Volcamos la información en el display para mostrarla
+
+    // Mueve todo el contenido de la pantalla de izquierda a derecha
+    display.startscrollright(0x00, 0x0F);
+    delay(5000);
+    display.stopscroll();
+  
+    // Mueve todo el contenido de la pantalla de derecha a izquierda
+    display.startscrollleft(0x00, 0x0F);
+    delay(5000);
+    display.stopscroll();
+  
+}
