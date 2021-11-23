@@ -1,0 +1,28 @@
+/*
+    CONSTRUIR UN HUMIFICADOR AMBIENTADOR CON ARDUINO 
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    NOVIEMBRE 2021
+
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+*/
+
+// DECLARAMOS LAS VARIABLES 
+int pin = 13;                 // Para el pin que controlará la salida, utilizamos el 13 en el uno para comprobar que va bien con led que tiene dicho pin en la placa
+int tiempo_espera = 5;        // Para indicar cuanto tiempo estará apagado el dispositivo, expresado en segundos
+int tiempo_activo = 2;        // Para indicar cuanto tiempo estará encendido el dispositivo, expresado en segundos
+
+
+void setup()
+{
+  // Declaramos los pines que vamos a utilizar y el tipo que van a tener dichos pines
+  pinMode(pin, OUTPUT);        // Para declarar el tipo de pin para la salida
+  digitalWrite(pin,LOW);       // LOW a la salida para inicializar el pin
+}
+
+void loop ()
+{
+   digitalWrite(pin,HIGH);          // activamos el pin que controla la salida
+   delay(tiempo_activo * 1000);     // esperamos un segundo, multiplicamos por 1000 para que cuente por segundos
+   digitalWrite(pin,LOW);           // apagamos el pin que controla la salida
+   delay(tiempo_espera * 1000);     // esperamos un segundo, multiplicamos por 1000 para que cuente por segundos
+}
