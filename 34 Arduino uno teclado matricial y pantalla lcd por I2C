@@ -1,0 +1,79 @@
+/*
+    CONECTAR NUESTRO ARDUINO CON TECLADO MATRICIAL Y PANTALLA LCD 1602A UTILIZANDO BUS I2C
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    NOVIEMBRE 2021
+
+    UTILIZO LAS LIBRERIAS DEL LCD Y DEL KEYPAD, DE AHI MISMO LA PODEIS DESCARGAR E INSTALAR COMO SE INDICAN EN LA WEB
+    LAS DERCARGAIS Y COPIAIS LAS CARPETAS EN EL DIRECTORIO DONDE TENEIS LAS LIBRERIAS DE VUESTRO ARDUINO IDE, LAS CARPETAS SE TIENEN QUE LLAMAR EXACTAMENTE IGUAL A COMO ESTAN DECLARADAS LAS LIBRERIAS .h
+    EN EL CURSO DE PROGRAMACION CON ARDUINO IDE PONDRE UN CAPITULO DEDICADO A COMO INSTALAR LAS LIBRERIAS EN EL ENTORNO DE PROGRAMACION 
+    
+    LiquidCrystal_I2C:    https://github.com/fdebrabander/Arduino-LiquidCrystal-I2C-library.  
+    KeypadI2C:            https://github.com/joeyoung/arduino_keypads
+    
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+*/
+
+/*               ********* CONEXIONES DESDE EL LCD HASTA NUESTRO ARDUINO NANO *********************
+ *               
+ *   PINES DEL ARDUINO NANO             PINES DEL MODULO I2C 
+ *             A4                              SDA
+ *             A5                              SDL
+ *  LA DIRECCION SE ASIGNA CON LOS PUENTES QUE TIENE LA PLACA DEL MODULO, SI OS FIJAIS LOS VEREIS DEBAJO DE LA RESISTENCIA AJUSTABLE, A LA IZQUIERDA DEL PIN SDL , HAY UNOS PUENTES NORMALMENTE ABIERTOS ( PONE A0 , A1, A2 )
+ *   A0 - A1 - A2   <  A ES ABIERTO ;  C ES CERRADO ES DECIR CON UN PUENTE DE SOLDADURA
+ *   C    C    C = 0x20
+ *   C    C    A = 0x21
+ *   C    A    C = 0x22
+ *   C    A    A = 0x23
+ *   A    C    C = 0x24
+ *   A    C    A = 0x25
+ *   A    A    C = 0x26
+ *   A    A    A = 0x27
+ */
+ 
+
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+#include <Keypad_I2C.h>
+#include <Keypad.h>
+
+// DECLARAMOS LAS VARIABLES QUE INDICAN LOS PINES QUE VAMOS A UTILIZAR
+String frase;                  // Para la frase que queremos mostrar en el lcd
+int linea ;                    // Para la linea donde vamos a escribir
+int columna ;                  // Para la columna de la linea donde vamos a escribir
+int total_lineas = 2;          // Para indicar cuantas lineas tiene nuestro lcd
+int total_columnas = 16;       // Para indicar cuantas columnas tiene nuestro lcd
+const byte ROWS = 4;           // Indicamos cuantas lineas/filas tiene el teclado
+const byte COLS = 4;           // Indicamos cuantas columnas tiene el teclado
+ 
+char keys[ROWS][COLS] = {      // declaramos una matriz con las teclas del teclado para saber a que corresponden, aqui os debeis fijar si coincide con vuestro teclado, especialmente los caracteres asterisco * y almohadilla #
+{'1','2','3','A'},
+{'4','5','6','B'},
+{'7','8','9','C'},
+{'*','0','#','D'}
+};
+ 
+byte rowPins[ROWS] = {0,1,2,3};  // declaramos los pines para las filas
+byte colPins[COLS] = {4,5,6,7};  // declaramos los pines para las columnas
+ 
+LiquidCrystal_I2C lcd_i2c(0x27, total_columnas, total_lineas); // indicamos la direccion y cuantos caracteres y lineas tiene nuestro lcd
+Keypad_I2C teclado = Keypad_I2C( makeKeymap(keys), rowPins, colPins, ROWS, COLS, 0x20 ); // llamamos a la libreria del keypad y le pasamos los parámetros, la dirección hexadecimal la podemos obtener según la combinación de puentes de la placa del módulo o bien mediante el programa que nos facilita los dispositivos I2C, esto también estará en el curso de programación Arduino IDE del canal
+
+
+void setup() {
+  // inicializo el teclado
+  teclado.begin();
+
+  // inicializo e ilumino el LCD
+  lcd_i2c.begin();
+  lcd_i2c.backlight();
+
+}
+
+void loop(){
+  char key = teclado.getKey(); // leemos la tecla que se pulsa ( si se pulsa alguna )
+  if (key){
+    linea = 1; columna = 0;
+    lcd_i2c.setCursor(columna, linea);
+    lcd_i2c.print("PULSADA " + String(key));    
+  }  
+}
