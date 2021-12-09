@@ -1,0 +1,74 @@
+/*
+    GESTION CON ARDUINO DE MOTOR PASO A PASO ( 28BYJ48 ) CON EL CONTROLADOR ULN2003
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    NOVIEMBRE 2021
+
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+*/
+
+// DECLARAMOS LAS CONSTANTES Y LAS VARIABLES NECESARIAS
+
+int velocidad = 1200;       // Velocidad del motor, es la pausa que hacemos entre paso y paso del motor y la expresamos en microsegundos, cuanto menor sea el valor , mayor será la velocidad del motor. VALOR MINIMO 900
+int paso = 0;               // Contador para el paso
+int total_pasos = 4220;     // Pasos necesarios para que el motor de una vuelta completa ( 360 grados )
+int motorPin1 = 8;          // Pin arduino para el Pin1 de la controladora ULN2003
+int motorPin2 = 9;          // Pin arduino para el Pin2 de la controladora ULN2003
+int motorPin3 = 10;         // Pin arduino para el Pin3 de la controladora ULN2003
+int motorPin4 = 11;         // Pin arduino para el Pin4 de la controladora ULN2003
+int i;                      // Variable para bucles
+
+int pasos_vuelta = 8;
+int bobinas[8] = { B1000, B1100, B0100, B0110, B0010, B0011, B0001, B1001 };
+
+
+void setup()
+{
+  // DECLARAMOS LOS PINES QUE VAMOS A UTILIZAR
+  pinMode(motorPin1, OUTPUT);
+  pinMode(motorPin2, OUTPUT);
+  pinMode(motorPin3, OUTPUT);
+  pinMode(motorPin4, OUTPUT);
+
+  // INICIALIZAMOS LOS PINES A LOW
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, LOW);
+}
+
+void loop()
+{
+  for (i = 0; i < total_pasos; i++)
+  {
+    avanzar();
+    delayMicroseconds(velocidad); // No usamos la funcion Delay por si queremos que la pausa sea inferior a un microsegundo o partes de un microsegundo
+  }
+  for (i = 0; i < total_pasos; i++)
+  {
+    retroceder();
+    delayMicroseconds(velocidad); // No usamos la funcion Delay por si queremos que la pausa sea inferior a un microsegundo o partes de un microsegundo
+  }
+  delay(1000);
+}
+
+void avanzar()
+{
+  paso++;
+  if (paso >= pasos_vuelta) paso = 0;
+  setOutput(paso);
+}
+
+void retroceder()
+{
+  paso--;
+  if (paso < 0) paso = pasos_vuelta - 1;
+  setOutput(paso);
+}
+
+void setOutput(int step)
+{
+  digitalWrite(motorPin1, bitRead(bobinas[step], 0));
+  digitalWrite(motorPin2, bitRead(bobinas[step], 1));
+  digitalWrite(motorPin3, bitRead(bobinas[step], 2));
+  digitalWrite(motorPin4, bitRead(bobinas[step], 3));
+}
