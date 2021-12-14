@@ -1,0 +1,64 @@
+/*
+    ARDUINO MEDIDOR DE DISTANCIAS POR ULTRASONIDOS CON EL SENSOR HC-SR04 Y MUESTRA EN PANTALLA LCD 1602A
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    DICIEMBRE 2021
+
+    UTILIZO LA LIBRERIA DE I2C, LA PODEIS DESCARGAR E INSTALAR EN :
+    LiquidCrystal_I2C: https://github.com/fdebrabander/Arduino-LiquidCrystal-I2C-library.  
+
+    
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+*/
+
+/*               ********* CONEXIONES DESDE EL LCD HASTA NUESTRO ARDUINO NANO *********************
+ *               
+ *   PINES DEL ARDUINO NANO             PINES DEL MODULO I2C 
+ *             A4                              SDA
+ *             A5                              SDL
+ *  LA DIRECCION SE ASIGNA CON LOS PUENTES QUE TIENE LA PLACA DEL MODULO, SI OS FIJAIS LOS VEREIS DEBAJO DE LA RESISTENCIA AJUSTABLE, A LA IZQUIERDA DEL PIN SDL , HAY UNOS PUENTES NORMALMENTE ABIERTOS ( PONE A0 , A1, A2 )
+ *   A0 - A1 - A2   <  A ES ABIERTO ;  C ES CERRADO ES DECIR CON UN PUENTE DE SOLDADURA
+ *   C    C    C = 0x20
+ *   C    C    A = 0x21
+ *   C    A    C = 0x22
+ *   C    A    A = 0x23
+ *   A    C    C = 0x24
+ *   A    C    A = 0x25
+ *   A    A    C = 0x26
+ *   A    A    A = 0x27
+ */
+ 
+#include <Wire.h>               // librería seriel, la utilizamos para comunicaciones con el pc
+#include <LiquidCrystal_I2C.h>  // librería para el LCD por I2C
+#include <NewPing.h>            // librería para el sensor de ultrasonidos
+
+// DECLARAMOS LAS VARIABLES QUE INDICAN LOS PINES QUE VAMOS A UTILIZAR
+String frase;                  // Para la frase que queremos mostrar en el lcd
+int linea = 0;                 // Para la linea donde vamos a escribir
+int columna = 0;               // Para la columna de la linea donde vamos a escribir
+int total_lineas = 2;          // Para indicar cuantas lineas tiene nuestro lcd
+int total_columnas = 16;       // Para indicar cuantas columnas tiene nuestro lcd
+int pin_Echo= 11;              // Para el Pin del arduino hacia el pin Echo del sensor
+int pin_Trigger = 10;          // Para el Pin del arduino hacia el pin Trigger del sensor
+int tope_Distancia = 250;      // Distancia máxima que va a detectar, en centímetros
+
+NewPing sensor_ultrasonidos(pin_Trigger, pin_Echo, tope_Distancia);   // creamos el objeto que usamos para el sensor y le indicamos los parámetros que vamos a pasarle
+LiquidCrystal_I2C lcd_i2c(0x27, total_columnas, total_lineas);        // creamos el objeto y le indicamos cuantos caracteres y lineas tiene nuestro lcd
+
+void setup() {
+  // *** initialize the LCD ***
+  lcd_i2c.begin();
+  lcd_i2c.backlight();
+  // **************************
+  pinMode(pin_Trigger, OUTPUT);  // iniciamos el pin que utilizamos para el trigger
+  pinMode(pin_Echo, INPUT);      // iniciamos el pin que utilizamos para el echo
+  Serial.begin(9600);            // abrimos comunicaciones con el pc para recibir los datos
+}
+
+void loop(){
+  delay(40);                     // espera entre lecturas, el mínimo no menos de 30ms
+  frase = "Distancia :" + String(sensor_ultrasonidos.ping_cm()) +" cm   ";
+  lcd_i2c.setCursor(columna, linea);
+  lcd_i2c.print(frase);  
+
+  Serial.println(frase); // enviamos el mensaje al pc de la distancia en centímetros
+}
