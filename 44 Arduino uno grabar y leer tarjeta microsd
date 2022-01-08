@@ -1,0 +1,80 @@
+
+/*
+    ARDUINO GRABAR Y LEER FICHERO DE UNA TARJETA MICROSD
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    ENERO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+*/
+
+#include <Wire.h>               // librería para comunicaciones con el pc
+#include <SPI.h>                // libreria de comunicaciones SPI
+#include <SD.h>                 // librería para la tarjeta de memoria
+
+// DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR
+String frase;                           // Para la frase que queremos grabar o leer de la tarjeta de memoria
+String fichero = "test_1.txt";          // Para el nombre del archivo que queremos crear, grabar o leer de la tarjeta de memoria, para evitar fallos máximo 8 caracteres para el nombre del archivo antes de la extensión .txt
+int linea = 1;                          // Para ir guardando el número de línea y ver que funciona correctamente
+byte caracter;                          // Para leer cada caracter del fichero
+File myFile;                            // Creamos el objeto con el que accedemos a la tarjeta
+
+void setup()
+{
+  Serial.begin(9600);
+  Serial.println("Iniciando tarjeta de memoria.");
+  if (!SD.begin(10)) {                   // iniciamos indicando el pin que hemos utilizado para chip select (CS)
+    Serial.println("No se pudo inicializar la tarjeta");
+    while (1);
+  }
+  Serial.println("Tarjeta detectada y encontrada, lista para trabajar");
+
+  //SD.remove(fichero);                    // si queremos borrar el fichero y empezar de nuevo, quitale las // del principio de esta línea
+  //while(1);                              // en el caso de usar el remove anterior, while(1) para que cuando borre el fichero no siga el código y no grabe nada, es decir borra el fichero y se para
+
+  // ********************** SI NO EXISTE EL FICHERO LO CREO Y LO CIERRO SIN ESCRIBIR NADA EN EL FICHERO ********************************
+  if (!SD.exists(fichero)) {
+    myFile = SD.open(fichero, FILE_WRITE);   // Primero creamos el fichero si no existe
+    myFile.close();                          // No escribimos nada y cerramos el fichero
+  }
+  // *****************************************************************************************************************************************
+
+
+  // ********************** ABRO EL FICHERO PARA SABER CUANTAS LINEAS HAY ESCRITAS DENTRO DEL FICHERO ****************************************
+  myFile = SD.open(fichero);               // abrimos el archivo que hemos indicado, lo hacemos en modo lectura
+  if (myFile) {
+    while (myFile.available()) {
+      caracter = myFile.read();
+      if (caracter == 13) {                // comprueba el salto de línea, es el código ascii 13
+        linea ++;                          // vamos aumentando linea por cada linea del fichero que leemos
+      }
+    }
+    myFile.close(); //cerramos el archivo
+  } else {
+    Serial.println("Error al abrir el archivo");
+  }
+  // ******************************************************************************************************************************************
+
+
+  //  *************************** ABRO EL FICHERO Y LE ESCRIBO UNA NUEVA LINEA AL FINAL DEL FICHERO CON EL NUMERO DE LINEA QUE HA LEIDO *******
+  myFile = SD.open(fichero, FILE_WRITE);     // abrimos el fichero para escribir dentro
+  myFile.println ("Linea " + String(linea)); // Escribimos una linea
+  myFile.close();                            // Cerramos el fichero
+  // ******************************************************************************************************************************************
+
+
+  // *************************** ABRO EL FICHERO, LEO LAS LINEAS Y LAS ENVIO AL MONITOR SERIE DEL PC ****************************************
+  myFile = SD.open(fichero);            //abrimos el archivo que hemos indicado, lo hacemos en modo lectura
+  if (myFile) {
+    Serial.println(fichero);
+    while (myFile.available()) {
+      Serial.write(myFile.read()); // leemos el contenido del archivo y lo enviamos al monitor serial del pc
+    }
+    myFile.close(); //cerramos el archivo
+  } else {
+    Serial.println("Error al abrir el archivo");
+  }
+  // *******************************************************************************************************************************************
+}
+
+void loop() {
+
+}
