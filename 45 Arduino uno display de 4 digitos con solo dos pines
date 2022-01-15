@@ -1,0 +1,26 @@
+/*
+    ARDUINO CONTROL DE DISPLAY DE 4 DIGITOS DE 7 SEGMENTOS CON DOS PINES DEL ARDUINO
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    ENERO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+    Libreria TM1637 para manejar el módulo de digitos, se puede descargar de aquí
+    https://www.arduinolibraries.info/libraries/tm1637
+    
+*/
+
+#include <TM1637Display.h>          // librería para manejar el módulo
+
+// DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR
+#define CLK 2                       // Indicamos el pin que maneja la señal CLK
+#define DIO 3                       // Indicamos el pin que envia los datos del número a mostrar
+
+TM1637Display visor7seg(CLK, DIO);  // Creamos el objeto y le pasamos los pines que vamos a usar para la conexión con el módulo
+
+void setup(){
+  visor7seg.setBrightness(5);       // Establecemos el brillo de los led del display
+}
+
+void loop(){
+  visor7seg.showNumberDec(1560);    // Envia el número que queremos mostrar
+}
