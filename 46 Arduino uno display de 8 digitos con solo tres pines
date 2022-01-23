@@ -1,0 +1,143 @@
+/*
+    ARDUINO CONTROL DE DISPLAY DE 4 DIGITOS DE 7 SEGMENTOS CON DOS PINES DEL ARDUINO
+    CÓDIGO ORIGINAL DE : Rob Tillaart
+    MODIFICADO Y ADAPTADO POR : JOSE MARIA MENDEZ RUIZ
+    ENERO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+    HISTORY: basado en el codigo de @ Tinytronics 
+    
+*/
+
+
+// ******* DEFINIMOS LA VARIABLES, CONSTANTES, MATRICES, ETC.. QUE VAMOS A UTILIZAR EN EL CODIGO *********
+
+const int datapin = 12;   // DIO CABLE AMARILLO
+const int latchpin = 11;  // RCK CABLE NARANJA
+const int clockpin = 8;   // SCK CABLE AZUL
+long numero ;             // NUMERO QUE VAMOS A MOSTRAR EN EL DISPLAY
+
+// ******** DECLARAMOS EL ARRAY QUE CONTIENE LOS POSIBLES VALORES QUE TENDRA EL DIGITO, EN NUESTRO CASO SOLO VAMOS A USAR VALORES NUMERICOS DEL 0 AL 9 ******
+const byte value[] PROGMEM = {
+  B11000000, // 0
+  B11111001, // 1
+  B10100100, // 2
+  B10110000, // 3
+  B10011001, // 4
+  B10010010, // 5
+  B10000010, // 6
+  B11111000, // 7
+  B10000000, // 8
+  B10010000, // 9
+};
+
+// ************ DECLARAMOS LOS DIGITOS QUE TIENE NUESTRO DISPLAY **********************
+const byte digit[] PROGMEM = {
+  B00010000, 
+  B00100000,
+  B01000000,
+  B10000000,
+  B00000001,
+  B00000010,
+  B00000100,
+  B00001000  
+};
+
+////////////////////////////////////////////////////////////////////////
+
+
+void setup()
+{
+    // **** INICIAMOS LOS PINES INDICANDO SU USO *******
+    pinMode(clockpin, OUTPUT);
+    pinMode(latchpin, OUTPUT);
+    pinMode(datapin, OUTPUT);
+
+}
+
+void loop()
+{
+  for (int i = 0; i < 10; i++)
+  {
+      numero = random(10000000);
+      for (int j = 0; j < 1000; j++) 
+      // ESTE BUCLE ES EL QUE GENERA LA PAUSA FICTICIA ENTRE CADA NUMERO, CUANTO MAYOR VALOR DE J MAS PAUSA, NO SE PUEDE UTILIZAR DELAY
+      // EN REALIDAD EL BUCLE LO QUE HACE ES REPETIR LA MUESTRA DEL NUMERO , NO PODEMOS UTILIZAR DELAY POR QUE ESTAMOS REALIZANDO LA MUESTRA DEL NUMERO POR MULTIPLEXACION
+      // EL NUMERO EN REALIDAD ESTA DIVIDO POR DIGITOS Y SE MUESTRAN DE UNO EN UNO PERO A TAL VELOCIDAD QUE EL OJO HUMANO NO LO NOTA, SINO VERIAMOS LOS NUMEROS ENCENDERSE DE UNO EN UNO
+      {
+        muestranumero(numero);
+      }
+  }
+}
+
+// *************** FUNCION PARA MOSTRAR EL NUMERO Y EL DIGITO QUE QUEREMOS DEL DISPLAY ***************
+void showDigit(int segmentnum, int number, bool showdecimalpoint)
+{
+  byte value_temp = pgm_read_byte_near(value + number);
+  if (showdecimalpoint) value_temp &= B01111111;
+
+  digitalWrite(latchpin, LOW);
+  shiftOut(datapin, clockpin, MSBFIRST, value_temp);
+  shiftOut(datapin, clockpin, MSBFIRST, pgm_read_byte_near(digit + segmentnum));
+  digitalWrite(latchpin, HIGH);
+}
+
+// ****************** FUNCION PARA MOSTRAR UN NUMERO DECIMAL ENTERO ***********************************
+void muestranumero(long value)
+{
+long v = value;
+  int last = -1;
+  bool neg = (v < 0);
+  if (neg)
+  {
+    v = -v;
+    last = 0;
+    showDigit(0, 17, false);
+  }
+
+  for (int i = 7; i > last; i--)
+  {
+    long t = v / 10;
+    int d = v - 10 * t;
+    v = t;
+    showDigit(i, d, false);
+  }
+}
+
+
+// ****************** FUNCION PARA MOSTRAR UN NUMERO FLOAT, ES DECIR DECIMAL CON COMA ***********************************
+void muestraFloat(float value)
+{
+  float v = value;
+  int dpos = 0;
+  int start = 0;
+  bool neg = (v < 0);
+
+  if (neg)
+  {
+    v = -v;
+    dpos++;
+    start = 1;
+    showDigit(0, 17, false);
+  }
+
+  while (v >= 10)
+  {
+    v /= 10;
+    dpos++;
+  }
+  for (int i = start; i < 8; i++)
+  {
+    int d = v;
+    showDigit(i, d, i == dpos);
+    v -= d;
+    v *= 10;
+  }
+}
+
+
+// ********************* FUNCION PARA LIMPIAR ( APAGAR LOS SEGMENTOS ) DE UN DIGITO *******************
+void clear()
+{
+  showDigit(0xFF, 16, false);
+}
