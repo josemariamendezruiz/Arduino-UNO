@@ -1,0 +1,57 @@
+/*
+    ARDUINO CONTROL DE DISPLAY DE 4 DIGITOS DE 7 SEGMENTOS CON DOS PINES DEL ARDUINO
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    ENERO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+    Libreria TM1637 para manejar el módulo de digitos, se puede descargar de aquí
+    https://www.arduinolibraries.info/libraries/tm1637
+    
+*/
+
+#include <TM1637Display.h>          // librería para manejar el módulo
+#include <RTClib.h>                 // librería para el RTCLib
+
+// DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR
+#define CLK 5                       // Indicamos el pin que maneja la señal CLK
+#define DIO 6                       // Indicamos el pin que envia los datos del número a mostrar
+String minuto_ant = "";             // Esta variable pone un 0 cuando los minutos son menor que 10
+int hora;                           // Para guardar las horas
+int minutos;                        // Para guardar los minutos
+
+RTC_DS3231 rtc;                    // creamos el objeto para manejar el RTC
+TM1637Display digitos4(CLK, DIO);  // Creamos el objeto y le pasamos los pines que vamos a usar para la conexión con el módulo
+
+void setup(){
+  digitos4.setBrightness(5);       // Establecemos el brillo de los led del display
+  if (!rtc.begin()) {
+    while (1);
+  }
+  //rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // Esta línea es para ajustar el RTC , solo se hace una vez antes de ponerle la pila o si hay un desfase en la fecha/hora, después hay que // comentarla la línea antes de utilizar el código
+}
+
+void loop(){
+  DateTime now = rtc.now();        // Con esta instrucción sacamos la fecha y hora del RTC
+
+  // ********************* CONVERTIMOS LA HORA AL SISTEMA DE 12h ********************
+  hora = now.hour();
+  if (hora > 12 ) { hora = hora - 12;}
+  if (hora == 0 ) { hora = 12;} // Para las 12 de la noche, que serían 00, en vez de poner 00 pondra 12, si quieres ver 00 entonces quita esta línea
+  // ********************************************************************************
+
+  // ********************* SI MINUTOS ES MENOR QUE 10, LE PONEMOS UN 0 DELANTE PARA LOS MINUTOS ********************
+  minutos = now.minute();
+  minuto_ant ="";
+  if (minutos < 10) minuto_ant = "0"; // pone un cero cuando los minutos son menor que 10
+  // ************************************************************************
+ 
+  String tiempo = String(hora)+ minuto_ant + String(now.minute());  // Prepara el número que mostrará la hora
+  int tiempo_ex = tiempo.toInt();                                   // Convierte la cadena tiempo a entero para pasársela al display como si fuera un decimal
+  
+  // ****** PARA MOSTRAR LA HORA CON EL PARPADEO DEL PUNTO DECIMAL CENTRAL O DE LOS DOS PUNTOS, SEGUN EL DISPLA QUE UTILICES **********
+  digitos4.showNumberDecEx(tiempo_ex, (0x80 >> 1), true);  // Muestra la hora con el punto decimal central o los puntos
+  delay(1000);                                             // espero un segundo antes de quitar el punto decimal central o los dos puntos
+  digitos4.showNumberDecEx(tiempo_ex, (0x80 >> 4), true);  // Muestra la hora sin el punto decimal central o los puntos
+  delay(1000);                                             // Espero un segundo para volver a visible el punto decimal central o los puntos
+  // **********************************************************************************************************************************
+}
