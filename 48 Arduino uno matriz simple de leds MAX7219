@@ -1,0 +1,45 @@
+/*
+    ARDUINO CONTROL DE MATRIZ DE LEDS
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    ENERO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+    Libreria MD_MAX72 para manejar el módulo de matriz de leds
+    https://www.arduinolibraries.info/libraries/md_max72-xx
+*/
+
+#include <MD_MAX72xx.h>                             // librería para manejar el módulo
+
+// DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR
+#define HARDWARE_TYPE MD_MAX72XX::DR0CR0RR1_HW      // Indicamos que es Hardware Genérico, para más información ver la documentación de la librería
+#define NUM_OF_MATRIX 1                             // Indicamos el número de matrices de leds que vamos a utilizar, en nuestro caso solo una
+#define CLK_PIN   10                                // Indicamos el pin que maneja la señal CLK
+#define CS_PIN    11                                // Indicamos el pin que maneja la CS
+#define DATA_PIN  12                                // Indicamos el pin que maneja los datos
+#define VELOCIDAD 100                               // Indicamos la velocidad que vamos a utilizar para mover la letra por la matriz, este valor es en milisegundos
+char letra = 'A';                                   // Indicamos la letra que vamos a dibujar en la matriz
+
+MD_MAX72XX matriz = MD_MAX72XX(HARDWARE_TYPE, DATA_PIN, CLK_PIN, CS_PIN, NUM_OF_MATRIX);  // creamos el objeto que maneja la matriz y le pasamos los parámetros declarados
+
+void setup(){
+    matriz.begin();                           // Inciamos el objeto que hemos creado para la matriz
+
+    // *************** REALIZAMOS UN TEST DE LA MATRIZ DE LEDS PARA VER SI ENCIENDEN TODOS LOS LEDS DE LA MATRIZ ****************
+    matriz.control(MD_MAX72XX::TEST, true);   // Encendemos todos los leds
+    delay(1000);                              // Esperamos un segundo
+    matriz.control(MD_MAX72XX::TEST, false);  // Apagamos todos los leds
+    //  *************************************************************************************************************************
+
+    matriz.control(MD_MAX72XX::INTENSITY, 5); // Definimos el brillo de los leds
+}
+
+void loop(){
+    
+    // ******** Este código mostrará la letra indicada en la variable letra desplazando dicha letra por la matriz  *************************************
+    for( int i = 0; i < 12; i++ ){
+      matriz.clear();                   // limpiamos la matriz, es decir apagamos todos los leds 
+      matriz.setChar( i, letra);        // indicamos la letra que vamos a mostrar y por la columna donde empezará a verse dicha letra
+      delay(VELOCIDAD);                 // el efecto de movimiento viene determinado por la velocidad que le indicamos en la variable VELOCIDAD
+    }
+    // ***********************************************************************************************************************************************
+}
