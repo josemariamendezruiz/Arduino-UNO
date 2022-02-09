@@ -1,0 +1,91 @@
+/*
+    ARDUINO CONTROL DE DISPLAY DE MATRIZ DE LED AMPLIA, EN ESTE PROYECTO SON 4 MODULOS
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    ENERO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+    Libreria MD_MAX72 para manejar el módulo de matriz de leds
+    https://www.arduinolibraries.info/libraries/md_max72-xx
+
+    Libreria Parola para matriz de leds
+    https://www.arduinolibraries.info/libraries/md_parola
+    
+    SEGUN LA MATRIZ QUE COMPREMOS, DEBEREMOS INDICARLO, SI NO SE VE BIEN EL TEXTO IR PROBANDO HASTA ENCONTRAR LA CORRECTA
+    MD_MAX72XX::GENERIC_HW: hardware genérico.
+    MD_MAX72XX::FC16_HW: para el uso de módulos tipo FC-16.
+    MD_MAX72XX::PAROLA_HW: para el uso de módulos tipo Parola.
+    MD_MAX72XX::ICSTATION_HW: para el uso de módulos tipo ICStation.
+    MD_MAX72XX::DR0CR0RR0_HW *
+    MD_MAX72XX::DR0CR0RR1_HW *
+    MD_MAX72XX::DR0CR1RR0_HW: equivalente a  GENERIC_HW.
+    MD_MAX72XX::DR0CR1RR1_HW *
+    MD_MAX72XX::DR1CR0RR0_HW: equivalente a FC16_HW.
+    MD_MAX72XX::DR1CR0RR1_HW *
+    MD_MAX72XX::DR1CR1RR0_HW: equivalente a PAROLA_HW.
+    MD_MAX72XX::DR1CR1RR1_HW: equivalente a ICSTATION_HW.
+
+*/
+
+#include <MD_Parola.h>    // librería Parola
+#include <MD_MAX72xx.h>   // librería para manejar el módulo
+
+// DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR
+#define HARDWARE_TYPE MD_MAX72XX::FC16_HW   // AQUI INDICAMOS NUESTRO HARDWARE DE MATRIZ CONFORME A LO QUE ARRIBA ESTA EXPUESTO
+#define MAX_DEVICES 4                       // NÚMERO DE MÓDULOS DE LEDS QUE COMPONEN NUESTRO CARTEL
+#define CLK_PIN   4                         // PIN PARA LA SEÑAL DE RELOJ
+#define CS_PIN    5                         // PIN PARA LA SELECCION 
+#define DATA_PIN  6                         // PIN PARA DATOS
+
+MD_Parola matriz = MD_Parola(HARDWARE_TYPE, DATA_PIN, CLK_PIN, CS_PIN, MAX_DEVICES);   // CREAMOS EL OBJETO
+
+void setup(void)
+{ 
+  matriz.begin();             // Iniciamos el objeto que hemos creado para la matriz
+}
+
+void loop(void)
+{
+  if (matriz.displayAnimate())
+  /*  
+  ********************* TIPOS DE ANIMACIÓN SOBRE EL TEXTO  ******
+  PA_PRINT
+  PA_SCAN_HORIZ
+  PA_SCROLL_LEFT
+  PA_WIPE
+  PA_SCROLL_UP_LEFT
+  PA_SCROLL_UP
+  PA_OPENING_CURSOR
+  PA_GROW_UP
+  PA_MESH
+  PA_SCROLL_UP_RIGHT
+  PA_BLINDS
+  PA_CLOSING
+  PA_RANDOM
+  PA_GROW_DOWN
+  PA_SCAN_VERT
+  PA_SCROLL_DOWN_LEFT
+  PA_WIPE_CURSOR
+  PA_DISSOLVE
+  PA_OPENING
+  PA_CLOSING_CURSOR
+  PA_SCROLL_DOWN_RIGHT
+  PA_SCROLL_RIGHT
+  PA_SLICE
+  PA_SCROLL_DOWN
+  *********************************************************
+  */
+  
+  // ********************* ALINEACION DEL TEXTO **************
+  // PA_CENTER, PA_LEFT o PA_RIGHT.
+  // *********************************************************
+  
+  // PARAMETROS
+  // PRIMERO: EL TEXTO A MOSTRAR
+  // SEGUNDO: LA ALINEACIÓN DEL TEXTO
+  // TERCERO: LA VELOCIDAD DE LA ANIMACIÓN, CUANTO MAS CERCA DEL 0 MAYOR VELOCIDAD
+  // CUARTO: LA PAUSA CUANDO MUESTRE TODO EL TEXTO ( en milisegundos como el delay ), 0 ES SIN PAUSA, EL TEXTO SE MUESTRA CONTINUAMENTE
+  // QUINTO: TIPO DE ANIMACIÓN
+  
+  matriz.displayText("Tecnolopia    ", PA_CENTER, 100, 0, PA_SCROLL_LEFT);
+
+}
