@@ -1,0 +1,46 @@
+/*
+    ARDUINO SENSOR DE RITMO CARDIACO CON MUESTRA DE DATOS EN LCD 
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    FEBRERO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+    ************** MUY IMPORTANTE *********************
+    * NO ESTÁ PENSADO NI DESARROLLADO PARA USO MÉDICO *
+    * *************************************************
+
+    Librería 
+    https://www.arduinolibraries.info/libraries/pulse-sensor-playground
+    
+*/
+
+#define USE_ARDUINO_INTERRUPTS true     // Habilitamos las interrupciones 
+#include <PulseSensorPlayground.h>      // Includes the PulseSensorPlayground Library.   
+#include <LiquidCrystal_I2C.h>          // Para utilizar el LCD de I2C
+
+// DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR
+int Pin_Pulso = 0;         // El Pin donde conectaremos la entrada de datos desde el sensor de latido
+int Pin_Led = 13;          // SI EL MICROCONTROLADOR TIENE ALGUN PIN QUE TENGA UN LED, INDICAMOS CUAL , SI NO TIENE LED ENTONCES PONER PinLed = 4 Y PONERLE AL PIN 4 UN LED CON UNA RESISTENCIA  , EL LED MARCARA EL PULSO DETECTADO
+int Curva = 550;           // Indica a partir de cuanto es la medida que vamos a utilizar para detectar el pulso
+                               
+PulseSensorPlayground SensorLatido;      // Creamos el objeto para el sensor
+LiquidCrystal_I2C lcd_i2c(0x27,16,2);    // Creamos el objeto para el LCD
+
+void setup() {   
+  // Configuramos el sensor 
+  SensorLatido.analogInput(Pin_Pulso);   
+  SensorLatido.blinkOnPulse(Pin_Led);
+  SensorLatido.setThreshold(Curva);   
+  SensorLatido.begin(); // Iniciamos el sensor de latido  
+}
+
+
+void loop() {
+  int Pulso = SensorLatido.getBeatsPerMinute();  // Recogemos el pulso que se detecta
+  if (SensorLatido.sawStartOfBeat()) {           // Si encuentra pulso indica la BPM ( Beat Per Minuto > Latidos por Minuto )
+     lcd_i2c.setCursor(1,0);
+     lcd_i2c.print("BPM= ");
+     lcd_i2c.print(Pulso);
+     lcd_i2c.print("    ");
+  }
+  delay(10);
+}
