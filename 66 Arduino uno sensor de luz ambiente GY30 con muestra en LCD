@@ -1,0 +1,54 @@
+/*
+    ARDUINO SENSOR DE LUZ AMBIENTE GY-30 / BH1750
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    MARZO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+    Librería ( Christopher Laws )
+    https://www.arduinolibraries.info/libraries/bh1750
+
+    Ejemplo de valores de lux  
+    0,0001 lux   Cielo nocturno nublado, luna nueva
+    0,001 lux    Cielo nocturno despejado, luna nueva
+    0,01 lux     Cielo nocturno despejado, cuarto creciente o menguante
+    0,25 lux     Luna llena en una noche despejada1​
+    1 lux        Luna llena a gran altitud en latitudes tropicales2​
+    3 lux        Límite oscuro del crepúsculo bajo un cielo despejado3​
+    100 lux      Pasillo en una zona de paso
+    300 lux      Sala de reuniones
+    500 lux      Oficina bien iluminada
+    600 lux      Salida o puesta de sol en un día despejado.
+    1000 lux     Iluminación habitual en un estudio de televisión
+    32.000 lux   Luz solar en un día medio (mín.)
+    100.000 lux  Luz solar en un día medio (máx.)
+
+*/
+
+#include <BH1750.h>                      // Para el sensor GY30/BH1750
+#include <Wire.h>                        // Para las comunicaciones
+#include <LiquidCrystal_I2C.h>           // Para utilizar el LCD de I2C
+
+BH1750 sensor_luz;                       // Creamos el objeto para el sensor de luminosidad
+LiquidCrystal_I2C lcd_i2c(0x27,16,2);    // Creamos el objeto para el LCD
+
+void setup() {
+  Serial.begin(9600);
+  Wire.begin();
+  sensor_luz.begin(BH1750::ONE_TIME_HIGH_RES_MODE); // Iniciamos el sensor y el modo que queremos
+  // Iniciamos el LCD
+  lcd_i2c.begin();
+  lcd_i2c.backlight();
+}
+
+void loop() {
+  while (!sensor_luz.measurementReady(true)) { // creamos un bucle para ir leyendo del sensor hasta que la medición esté disponible, pero yield() permite que se continue la ejecución de los threads sin bloquearlos
+    yield();
+  }
+  float luz_ = sensor_luz.readLightLevel();
+  String luz;
+  luz.concat(luz_);
+  Serial.println("Luz: " + luz + " lux");
+  lcd_i2c.setCursor(1,0);
+  lcd_i2c.print("Luz: " + luz + "lux    ");
+  sensor_luz.configure(BH1750::ONE_TIME_HIGH_RES_MODE); // configuramos el sensor un solo disparo en alta resolución
+}
