@@ -1,0 +1,53 @@
+/*
+    ARDUINO SENSOR DE OBSTÁCULOS POR INFRARROJOS
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    MARZO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+*/
+
+// *** DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR   ***
+int Pin_Sensor = 5;  // para recoger la señal que nos envia el sensor de obstáculos
+int Pin_Led = 13;    // Para el pin usaremos para encender un led que nos avise de obstáculo detectado, en los arduino uno, nano y mega usaremos el 13 que tiene el led en la placa del arduino
+
+void setup() {
+  pinMode(Pin_Sensor , INPUT);
+  pinMode(Pin_Led , OUTPUT);
+}
+ 
+void loop(){
+  int Sensor = 1;
+  Sensor = digitalRead(Pin_Sensor); 
+
+  // Primero tenemos que saber como recibimos la señal del sensor, hay sensores que emiten una señal negada, es decir, que recibimos un 1 hasta que detecta un obstáculo y entonces recibimos un 0
+  // Según el tipo de sensor que tengamos,  configuramos las siguiente líneas de código
+  // Para el caso que el sensor nos envíe una señal negada ( Como el que yo utilizo en la protoboard ) el código es el siguiente:
+
+  if (Sensor == 0) {
+    digitalWrite(Pin_Led, 1);       // Activamos el pin que tiene el led, podría tener un relé que accione un mecanismo o un Buzzer que emita un pitido, etc..
+  }
+  if (Sensor == 1) {
+    digitalWrite(Pin_Led, 0);       // Apagamos el pin que tiene el led, podría tener un relé que accione un mecanismo o un Buzzer que emita un pitido, etc..
+  }
+
+  /*
+    *** Si el sensor emite una señal 0 hasta que haya obstáculo y entonces envia un 1 , el código sería: 
+
+    if (Sensor == 0) {
+      digitalWrite(Pin_Led, 0);       //activamos el pin que tiene el led, podría tener un relé que accione un mecanismo o un Buzzer que emita un pitido, etc..
+    }
+    if (Sensor == 1) {
+      digitalWrite(Pin_Led, 1);       //Apagamos el pin que tiene el led, podría tener un relé que accione un mecanismo o un Buzzer que emita un pitido, etc..     
+    }
+
+    *** Se podría reducir aun más el código, si solo necesitamos que la salida se active si el sensor emite un 1 cuando hay obstáculo:
+
+      digitalWrite(Pin_Led, Sensor);
+      
+    *** Y si la señal recibida es negada, es decir un 0 cuando hay obstáculo:
+    
+      digitalWrite(Pin_Led, !Sensor);
+
+  */
+  
+}
