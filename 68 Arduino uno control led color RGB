@@ -1,0 +1,30 @@
+/*
+    CONTROL DE COLOR DE UN LED RGB
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    MARZO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+*/
+
+// *** DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR   ***
+int p_rojo = A0;                // Variable para indicar los pines que vamos a utilizar
+int p_verde = A1;               // Variable para indicar los pines que vamos a utilizar
+int p_azul = A2;                // Variable para indicar los pines que vamos a utilizar
+
+void setup() {
+	pinMode(p_rojo, OUTPUT);      // Establecemos el estado de los pines que vamos a utilizar, indicando si son OUTPUT o INPUT
+	pinMode(p_verde, OUTPUT);     // Establecemos el estado de los pines que vamos a utilizar, indicando si son OUTPUT o INPUT
+	pinMode(p_azul, OUTPUT);      // Establecemos el estado de los pines que vamos a utilizar, indicando si son OUTPUT o INPUT
+}
+ 
+void loop(){  
+      int rojo, verde, azul;     // Para guardar los valores de cada color
+      rojo =  random (0,255);    // sacamos valores aleatorios de 0 a 255
+      verde = random (0,255);    // sacamos valores aleatorios de 0 a 255
+      azul =  random (0,255);    // sacamos valores aleatorios de 0 a 255
+      
+      analogWrite(p_rojo, rojo);    // ponemos el valor indicado en el pin establecido
+      analogWrite(p_verde, verde);  // ponemos el valor indicado en el pin establecido
+      analogWrite(p_azul, azul);    // ponemos el valor indicado en el pin establecido
+      delay (500);
+}
