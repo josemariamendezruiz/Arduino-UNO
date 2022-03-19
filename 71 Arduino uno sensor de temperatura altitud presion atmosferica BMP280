@@ -1,0 +1,79 @@
+/*
+    ARDUINO SENSOR DE TEMPERATURA, ALTITUD Y PRESION ATMOSFÉRICA CON SENSOR BMP280
+    JOSE MARIA MENDEZ RUIZ
+    MARZO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+    Librerías:
+    https://www.arduinolibraries.info/libraries/bmp280_dev  		// Librería para manejar el sensor BMP280
+    https://www.arduinolibraries.info/libraries/liquid-crystal-i2-c	// Librería para manejar el LCD16x02 por I2C
+
+    En el sensor, el PIN SD0 que vemos en la protoboard con el cable blanco, va conectado a masa o a positivo ( 3,3v ) según la dirección que queremos utilizar en el I2C
+    Como ya sabemos el bus I2C utiliza direcciones para ver los distintos dispositivos que hay conectados a dicho bus y puede que haya dos dispositivos con la 
+    misma dirección y provocar conflicto, pues el BMP280 para poder cambiar de dirección utiliza este pin, es decir si lo conectamos a negativo tendrá una 
+    dirección y si lo ponemos a positivo ( 3,3v ) entonces tendrá otra, lo importante es que nunca lo dejeis sin conectar dado que podría dar un estado de no saber como 
+    funciona, lo de vete tu a saber cual soy jejejejej, bueno, os recuerdo que en mi mismo canal tenéis en programación IDE, hay un capítulo que explico como
+    podeis obtener las direcciones de los equipos conectados al bus I2C. 
+    Comentaros que esto es si tiene dicho pin, puesto que hay algunos BMP280 que solo tiene 4 pines y en esos no es necesario hacer nada, todo depende del que 
+    compreis.
+*/
+
+
+// EL LCD ES OPCIONAL, SI NO SE TIENE EL LCD QUITAMOS LAS LINEAS QUE INDICAN EL MISMO EN TODO EL CÓDIGO, LOS DATOS TAMBIÉN SE VER POR EL MONITOR SERIE
+
+
+// Incluimos las librerías necesarias
+#include <BMP280_DEV.h>                 // Para el sensor BMP280
+#include <LiquidCrystal_I2C.h>          // Para utilizar el LCD de I2C , en caso de no tener LCD quitamos esta línea
+
+
+// *** DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR   ***
+float temperatura, presion, altitud;  // las tres variables donde vamos a guardar lo recogido por el sensor
+
+
+// **** CREAMOS LOS OBJETOS QUE USAREMOS EN EL PROGRAMA PARA LLAMAR AL HARDWARE QUE HEMOS AÑADIDO AL PROYECTO ********
+BMP280_DEV bmp280;  			 // Creamos el objeto para manejar el sensor
+LiquidCrystal_I2C lcd_i2c(0x27,16,2);    // Creamos el objeto para el LCD , si no tenemos el LCD quitamos esta línea
+
+
+void setup() {
+    Serial.begin(9600);
+
+    // Iniciamos el LCD , si no tenemos LCD entonces estas líneas las quitamos
+    lcd_i2c.begin();
+    lcd_i2c.backlight();
+
+    // Iniciamos el sensor BMP280
+    bmp280.begin(BMP280_I2C_ALT_ADDR);          // Iniciamos el objeto creado para iniciar el sensor
+    bmp280.setTimeStandby(TIME_STANDBY_500MS);  // Con este parámetro le indicamos que obtenga valores cada medio segundo 500ms, podemos hacerlo con otros tiempos
+}
+ 
+void loop(){  
+  bmp280.startNormalConversion(); // Empezamos la obtención de valores 
+  if (bmp280.getMeasurements(temperatura, presion, altitud)) {   // Si se reciben datos entonces los recojemos en las variables y los mostramos
+
+      // **** ESTAS LINEAS ENVIAR AL MONITOR SERIE LOS DATOS RECOGIDOS, LO PODEMOS VER A TRAVÉS DEL MISMO *****
+      Serial.print(temperatura);
+      Serial.print(F("*C   "));
+
+      Serial.print(presion);
+      Serial.print(F("hPa   "));
+
+      Serial.print(altitud);
+      Serial.println(F("m"));
+      
+      //  *** LAS SIGUIENTES LINEAS SON PARA VER LOS DATOS EN EL LCD, SI NO TENEMOS LCD QUITAMOS LAS SIGUIENTES LINEAS ****
+      lcd_i2c.setCursor(0,0);
+      lcd_i2c.print(temperatura);
+      lcd_i2c.print("C");
+
+      lcd_i2c.setCursor(7,0);
+      lcd_i2c.print(presion);
+      lcd_i2c.print("hPa");
+
+      lcd_i2c.setCursor(5,1);
+      lcd_i2c.print(altitud);
+      lcd_i2c.print("m");
+
+  }
+ }
