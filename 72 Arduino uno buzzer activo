@@ -1,0 +1,22 @@
+/*
+    ARDUINO BUZZER ACTIVO
+    JOSE MARIA MENDEZ RUIZ
+    MARZO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+*/
+
+// *** DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR   ***
+int Pin_buzzer = 3;    // Con este pin activamos el buzzer
+
+void setup() {
+  pinMode(Pin_buzzer, OUTPUT);       //definimos el pin que vamos a utilizar como salida
+  digitalWrite(Pin_buzzer, LOW);     // Ponemos el pin de salida en LOW
+}
+
+void loop() {
+  digitalWrite(Pin_buzzer, HIGH);       // Ponemos el pin de salida de aviso a HIGH para que se active el buzzer
+  delay(1000);                          // Hacemos una pausa de 1 segundo para apagar el pin de salida
+  digitalWrite(Pin_buzzer, LOW);        // Ponemos el pin de salida de aviso a LOW para que pare el buzzer
+  delay(1000);                          // Hacemos una pausa de 1 segundo para activar de nuevo el pin de salida
+}
