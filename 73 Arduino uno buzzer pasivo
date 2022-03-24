@@ -1,0 +1,39 @@
+/*
+    ARDUINO BUZZER PASIVO
+    JOSE MARIA MENDEZ RUIZ
+    MARZO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+*/
+
+/*   ********************   IMPORTANTE SOBRE EL TEMA DEL USO DE BUZZER PASIVOS  *************************************
+ *   AL UTILIZAR LA FUNCION tone TENDREMOS QUE TENER EN CUENTA QUE USAMOS EL TIMER 2 , POR LO TANTO ALGUNAS SALIDAS PWM ( DEPENDE DE CADA MICROCONTROLADOR )
+ *   DEJARAN SE ESTAR OPERATIVAS Y SOLO PODREMOS UTILIZAR EL tone SOLO UNA VEZ AL MISMO TIEMPO, ES DECIR NO PODEMOS USAR EL tone EN DOS SALIDAS SIMULTANEAMENTE
+ *   PARA SABER QUE PINES SON LOS QUE ESTAN ASOCIADOS AL TIMER, DEBEREMOS COGER EL DATASHEET DEL FABRICANTE Y VER CUALES SON LOS QUE CORRESPONDEN A NUESTRO MICROCONTROLADOR
+ *
+ *   EN ESTE CASO USAMOS LA FUNCION tone QUE PARA ESTE EJEMPLO NOS SOBRA, TIENE LIMITACIONES Y DA POCAS OPCIONES, PERO PARA NUESTRO EJEMPLO DE USO DEL BUZZER PASIVO NOS SOBRA
+ *   EN OTRO EJEMPLO MAS ADELANTE USAREMOS UNA LIBRERÍA QUE NOS PERMITE MUCHISIMAS MAS OPCIONES Y NO TIENE TANTAS LIMITACIONES, SOBRE TODO UNA DE LAS MAS IMPORTANTES QUE ES EL BLOQUEO 
+ *   DICHA LIBRERIA ES EasyBuzzer , SI QUEREIS ADENTRAROS UN POCO LA PODEIS DESCARGAR EN VUESTRO IDE Y PROBAR TODAS SUS FUCIONES A TRAVES DE LOS EJEMPLOS. NOSOTROS LA UTILIZAREMOS
+ *   MAS ADELANTE CUANDO HAGAMOS UN USO CONCRETO DE LA MISMA.
+*/
+
+// *** DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR   ***
+int Pin_buzzer = 3;     // Con este pin activamos el buzzer, tiene que ser un pin con salida PWM
+int frecuencia;         // Con esta variable le indicamos la frecuencia que queremos hacer sonar
+
+void setup() {
+  pinMode(Pin_buzzer, OUTPUT);       //definimos el pin que vamos a utilizar como salida
+  digitalWrite(Pin_buzzer, LOW);     // Ponemos el pin de salida en LOW
+}
+
+void loop() {
+  frecuencia = 500;                     // Esta variable contiene la frecuencia del tono
+  tone(Pin_buzzer, frecuencia);         // Hacemos sonar el pin en la frecuencia indicada
+  delay(1000);                          // Hacemos una pausa de 1 segundo para apagar el pin de salida
+  // CAMBIAMOS LA FRECUENCIA PARA QUE SUENE DIFERENTE
+  frecuencia = 800;                     // Esta variable contiene la frecuencia del tono
+  tone(Pin_buzzer, frecuencia);         // Hacemos sonar el pin en la frecuencia indicada
+  delay(1000);                          // Hacemos una pausa de 1 segundo para apagar el pin de salida
+  // PARA EL TONO
+  noTone(Pin_buzzer);                   // Paramos el tono en el pin indicado
+  delay(1000);                          // Hacemos una pausa de 1 segundo para volver activar el pin de salida
+}
