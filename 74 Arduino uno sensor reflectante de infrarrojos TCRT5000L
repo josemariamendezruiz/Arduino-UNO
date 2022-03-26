@@ -1,0 +1,32 @@
+/*
+    ARDUINO SENSOR INFRARROJO DE REFLEXION TCRT5000L
+    JOSE MARIA MENDEZ RUIZ
+    MARZO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+*/
+
+// *** DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR   ***
+int Pin_sensor = 5;   // Con este pin recogemos las señales del sensor
+int Pin_aviso = 3;    // Con este pin cuando el sensor pase por encima de una zona oscura entonces activaremos este pin
+
+void setup() {
+  Serial.begin(9600);               //iniciamos las comunicaciones con el puerto serie para el monitor serie
+  pinMode(Pin_sensor, INPUT);       //definimos el pin que vamos a utilizar como entrada
+  pinMode(Pin_aviso, OUTPUT);       //definimos el pin que vamos a utilizar como salida
+  digitalWrite(Pin_aviso, LOW);     // Ponemos el pin de salida de aviso en LOW
+}
+
+void loop() {
+  int value = 0;                       // Variable temporal que usaremos para recoger la señal del sensor
+  value = digitalRead(Pin_sensor );    // lectura digital de pin del sensor
+
+  // Si el sensor detecta una zona oscura
+  if (value == HIGH) {
+    Serial.println("ZONA OSCURA DETECTADA");
+    digitalWrite(Pin_aviso, HIGH);       // Ponemos el pin de salida de aviso a HIGH
+  } else {
+    digitalWrite(Pin_aviso, LOW);        // Ponemos el pin de salida de aviso en LOW
+  }
+  delay(100);                              // Hacemos una pausa de 100 milisegundos, de forma que leemos el sensor cada dicho tiempo, recuerda que es en milisegundos2º
+}
