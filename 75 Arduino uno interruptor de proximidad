@@ -1,0 +1,57 @@
+/*
+    ARDUINO INTERRUPTOR DE PROXIMIDAD
+    JOSE MARIA MENDEZ RUIZ
+    MARZO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+*/
+
+// *** DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR   ***
+int Pin_sensor = 5;            // Con este pin recogemos las señales del sensor
+int Pin_activar = 3;           // Con este pin activaremos el rele
+int value = 0;                 // Variable que usaremos para recoger la señal del sensor
+int value_anterior = 0;        // Variable que usaremos para recoger la señal anterior del sensor
+int enciende = 0;              // Variable que usaremos para el cambio de estado
+
+void setup() {
+  pinMode(Pin_sensor, INPUT);         //definimos el pin que vamos a utilizar como entrada
+  pinMode(Pin_activar, OUTPUT);       //definimos el pin que vamos a utilizar como salida
+  digitalWrite(Pin_activar, LOW);     // Ponemos el pin de salida en LOW
+}
+
+void loop() {
+  value = digitalRead(Pin_sensor );       // lectura digital de pin del sensor
+
+  /* Si el sensor detecta que pasamos la mano por delante de el, tener el cuenta si vuestro sensor es con salida normal o negada
+   Es decir:
+   Seria salida a 0      >>> Si vuestro sensor emite un 0 ( 0v ) en estado de reposo y un 1 ( 5v ) cuando se pasa la mano por delante de el 
+   Seria salida negada   >>> Si vuestro sensor emite un 1 ( 5v ) en estado de reposo y un 0 ( 0v ) cuando se pasa la mano por delante de el 
+   
+  */
+  if (value == LOW) // Este seria para un sensor con salida negada como el que utilizo en la protoboard
+  // if (value == HIGH) // Este seria para un sensor con salida a 0, en este caso quitar el comentar de esta linea y comentar la linea anterior
+  {
+    if ( value_anterior == LOW)  
+    {
+      enciende = 1;
+      digitalWrite(Pin_activar, HIGH);       // Ponemos el pin de salida a HIGH
+    }
+    if ( value_anterior == HIGH)
+    {
+      enciende = 0;
+      digitalWrite(Pin_activar, LOW);        // Ponemos el pin de salida en LOW
+    }
+    value_anterior = enciende;  
+    delay(500); // Para evitar el rebote y los falsos disparos seguidos
+    /* Debemos tener en cuenta un cosa:
+     *  Si dejamos la mano encima del sensor mas de los 500 ms que hemos puesto de pausa en el delay anterior, veremos que la luz se apagará y encenderá continuamente
+     *  Esto es normal por que el sistema esta recogiendo los cambios continuamente, podemos hacer dos cosas para evitar esto
+     *  1 ponemos un delay mas largo como 2 segundos, el inconveniente es que no nos hara caso durante ese tiempo es decir, no se podrá apagar la luz durante ese tiempo
+     *  2 le ponemos un tiempo de x segundos y que después se apague, el incoveniente es que para un dormitorio o salón no sería útil.
+     *  Yo en las pruebas que he hecho, lo normal es que al entrar en una habitación , lo que hacemos es pasar la mano rápidamente para encender la luz como cuando lo hacemos con un interruptor tradicional, 
+     *  no solemos dejar la mano puesta encima del interruptor.
+     *  Pero lo mejor es ajustar el delay a cada caso, podéis ir subiendo a 1 segundo por ejemplo ( 1000 ms en el delay ) y así sería más largo el tiempo de espera para que se quitara la mano
+    */
+  }
+  
+}
