@@ -1,0 +1,84 @@
+/*
+    ARDUINO PUENTE H CON EL L298N PARA CONTROLAR LA VELOCIDAD Y EL SENTIDO DEL GIRO DE DOS MOTORES
+    JOSE MARIA MENDEZ RUIZ
+    ABRIL 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+
+    Para controlar la velocidad de los motores tenemos que quitar los puentes en la placa del L298N, si nos fijamos junto a la toma de 3 pines de los tornillos , las otras dos tomas son de dos pines
+    pues junto a la toma de los tres pines hay una serie de pines, el primero y el ultimo tiene la posibilidad de ponerle un jumpers (puente) dichos puentes se pueden quitar o poner. 
+    Si la placa es nueva, veremos que el primero y el último puente están puestos, si los dejamos puestos no podremos controlar la velocidad de los motores, hay veces que nos interesa que los motores 
+    giren a la misma velocidad ( al máximo ) entonces estos puentes estarán puestos, pero si queremos controlar la velocidad o activar uno u otro puente H a través del microcontrolador, 
+    entonces le quitamos estos puentes y controlaremos la velocidad conectando el pin inferior de dichos pines directamente a dos pines del microncontrolador y entonces activaremos por dichos pines 
+    la activación del puente H correspondiente y también la velocidad, hay que tener en cuenta que los pines que los controlen tienen que ser PWM si queremos controlar la velocidad, si solo queremos
+    controlar si está o no activo el puente H correspondiente entonces nos sirve cualquier salida digital de nuestro microcontrolador.
+
+*/
+
+// *** DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR   ***
+// Variables que indican los pines para el motor A, por comodidad a la hora de conectar, le vamos a poner los mismos nombres que tiene la placa del L298N
+int IN1 = 5;
+int IN2 = 4;
+
+// Variables que indican los pines para el motor B, por comodidad a la hora de conectar, le vamos a poner los mismos nombres que tiene la placa del L298N
+int IN3 = 3;
+int IN4 = 2;
+
+
+void setup() {
+  // Los tres pines que controlan el motor A
+  pinMode (IN1, OUTPUT);
+  pinMode (IN2, OUTPUT);
+
+  // Los tres pines que controlan el motor B
+  pinMode (IN3, OUTPUT);
+  pinMode (IN4, OUTPUT);
+}
+
+void loop() {
+    Adelante ();
+    delay (2000);
+    Parar ();
+    delay (2000);
+    Atras ();
+    delay (2000);
+    Parar ();
+    delay (2000);
+}
+
+
+// *************** Función para ir hacia delante ************
+void Adelante ()
+{
+ // Para controlar el motor A
+ digitalWrite (IN1, HIGH);
+ digitalWrite (IN2, LOW);
+ 
+ // Para controlar el motor B
+ digitalWrite (IN3, HIGH);
+ digitalWrite (IN4, LOW);
+}
+
+// ************** Función para ir hacia atras ***************
+void Atras ()
+{
+ // Para controlar el motor A
+ digitalWrite (IN1, LOW);
+ digitalWrite (IN2, HIGH);
+ 
+ // Para controlar el motor B
+ digitalWrite (IN3, LOW);
+ digitalWrite (IN4, HIGH);
+}
+
+
+// ************** Función para parar ***************
+void Parar ()
+{
+ //Direccion motor A
+ digitalWrite (IN1, LOW);
+ digitalWrite (IN2, LOW);
+ //Direccion motor B
+ digitalWrite (IN3, LOW);
+ digitalWrite (IN4, LOW);
+}
