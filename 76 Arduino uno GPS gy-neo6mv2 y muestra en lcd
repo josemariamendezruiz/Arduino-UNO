@@ -1,0 +1,71 @@
+/*
+    ARDUINO GPS CON EL MODULO GY-NEO6MV2 Y MUESTRA EN LCD O EN MONITOR SERIE
+    JOSE MARIA MENDEZ RUIZ
+    MARZO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+    Librerías:
+    https://github.com/fdebrabander/Arduino-LiquidCrystal-I2C-library.   // Para el LCD por I2C ( si lo tenemos ), sino los datos se verán en el monitor serie 
+    https://www.arduinolibraries.info/libraries/tiny-gps                 // para la gestión del gps, podemos usarlo directamente a través del puerto serie, pero con ésta librería obtenemos los datos en variables de forma directa
+    https://www.arduino.cc/reference/en/libraries/tinygpsplus/           // Para la gestión del gps, libreria más completa y con más novedades que la anterior
+
+    Es interesante que probéis ambas librerías y veáis que pueden hacer cada una de ellas.
+    Este código es del ejemplo que trae la propia librería, lo he modificado y adaptado al video.
+    
+*/
+#include <SoftwareSerial.h>
+#include <TinyGPS.h>
+#include <LiquidCrystal_I2C.h>
+
+TinyGPS gps;                            // Creamos el objeto con el cual vamos a manejar el gps
+SoftwareSerial gps_com(4, 3);           // Indicamos los pines que vamos a utilizar para las comunicaciones con el GPS para TX y RX
+LiquidCrystal_I2C lcd_i2c(0x27, 16, 2); // indicamos cuantos caracteres y lineas tiene nuestro lcd
+
+void setup() {
+  Serial.begin(115200);            // Iniciamos las comunicaciones con el monitor serie
+  gps_com.begin(9600);             // Iniciamos las comunicaciones con el gps indicando la velocidad de las comunicaciones
+
+  // iniciamos nuestro LCD, si lo tenemos, si no tuvieramos entonces quitar estas dos líneas
+  lcd_i2c.begin();
+  lcd_i2c.backlight();
+
+}
+
+void loop() {
+  bool newData = false;          // En esta variable manejamos cuando los datos que recibimos del gps ya pueden ser tratados para obtener los valores
+
+  // Leemos los datos recibidos a intervalos de 1 segundo, se utiliza Millis para evitar el bloqueo, si usaramos delay se bloquearía la ejecución del código y de las comunicaciones durante el delay.
+  for (unsigned long start = millis(); millis() - start < 1000;)
+  {
+    while (gps_com.available())
+    {
+      char c = gps_com.read();
+      //Serial.write(c);             // esta linea la utilizamos para mostrar en el monitor serie lo que se recibe del gps, si vemos que los datos no aparecen entonces le quitamos el comentario // del inicio y veremos lo que estamos recibiendo del gps
+      if (gps.encode(c))             // Comprobamos si lo que recibimos del gps es válido y contiene los datos de la geolocalización.
+        newData = true;              // Ponemos la variable newData a true si los datos recibidos del gps ya pueden tratarse para que se muestren 
+    }
+  }
+
+  if (newData)
+  {
+    float flat, flon;                       // Guardaremos los datos de Latitud y Longitud
+    gps.f_get_position(&flat, &flon);       // Obtenemos los datos y se los pasamos a las variables declaradas anteriormente
+    
+    // ******** Con estas líneas vemos en el Monitor Serie los valores de Latitud, Longitud y Número de satélites encontrados
+    Serial.print("LAT=");
+    Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);  // Para saber la Latitud
+    Serial.print(" LON=");
+    Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);  // Para saber la Longitud
+    Serial.print(" SAT=");
+    Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites()); // Para saber cuantos satélites se han encontrado
+    // ***************************************
+
+    // ***** Con estas líneas vemos los datos en el LCD, si no tenemos lcd entonces eliminar dichas líneas
+    lcd_i2c.setCursor(5,0);
+    lcd_i2c.print(flat);  // Muestra la Latitud
+    lcd_i2c.setCursor(5, 1);
+    lcd_i2c.print(flon);  // Muestra la Longitud
+    // ***************************************
+  }
+    
+}
