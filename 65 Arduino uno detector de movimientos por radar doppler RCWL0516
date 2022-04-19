@@ -1,0 +1,31 @@
+/*
+    ARDUINO DETECTOR DE MOVIMIENTO POR RADAR DOPPLER SENSOR RCWL-0516
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    ABRIL 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+*/
+
+// DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR
+int Pin_Led = 13;
+int Pin_Radar = 5;
+ 
+void setup()
+{
+  pinMode(Pin_Led, OUTPUT);
+  pinMode(Pin_Radar, INPUT);
+}
+ 
+void loop()
+{
+  int radar = digitalRead(Pin_Radar);
+ 
+  if (radar == HIGH)
+  {
+    digitalWrite(Pin_Led, HIGH);
+    delay(50);
+  }
+  else
+  {
+    digitalWrite(Pin_Led, LOW);
+  }
+}
