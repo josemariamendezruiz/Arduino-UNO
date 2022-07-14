@@ -1,0 +1,80 @@
+/*
+    ARDUINO BRUJULA CON SENSOR GY-271
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    JULIO 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    SON NECESARIAS LAS LIBRERIAS DE ADAFRUIT PARA EL SENSOR HMC5883. PARA INSTALARLAS EN EL MENU SUPERIOR IREMOS A HERRAMIENTAS 
+    DENTRO IREMOS A ADMINISTRAR BIBLIOTECAS Y CUANDO NOS SALGA EL CUADRO DE BUSQUEDA ESCRIBIMOS HMC5883 , NOS SALDRAN VARIAS LIBRERIAS
+    Y VEREMOS LA DE ADAFRUIT UNIFID, LA INSTALAMOS Y YA PODEMOS UTILIZARLA 
+*/
+
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_HMC5883_U.h>
+#include <LiquidCrystal_I2C.h>          // Para utilizar el LCD de I2C
+
+// DECLARAMOS EL PIN QUE VAMO A UTILIZAR PARA AVISAR, EL PIN LED ( SI TIENE EL MICROCONTROLADOR EN LA PLACA )
+int Pin_Led = 13;          // El Pin led
+
+// CREAMOS LOS OBJETOS PARA MANEJAR EL SENSOR Y EL LCD
+LiquidCrystal_I2C lcd_i2c(0x27,16,2);    // Creamos el objeto para el LCD
+Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
+
+void setup(void) 
+{
+  Serial.begin(9600);
+  // INICIAMOS EL SENSOR Y COMPROBAMOS QUE NO HAYA PROBLEMAS CON LA CONEXION
+  if(!mag.begin())
+  {
+    Serial.println("NO ENCUENTRO EL SENSOR, REVISA LAS CONEXIONES");
+    while(1);
+  }
+
+  // INICIAMOS EL LCD
+  lcd_i2c.begin();
+  lcd_i2c.backlight();
+
+}
+
+void loop(void) 
+{
+  sensors_event_t event; 
+  mag.getEvent(&event);
+ 
+  float declinacion = 0.12; // LA DECLINACION SEGUN NUESTRA POSICIÓN GLOBAL, TIENES QUE OBTENER TU DECLINACION, LA PUEDES OBTENER EN LA WEB >>   http://magnetic-declination.com
+  
+  float angulo = atan2(event.magnetic.y, event.magnetic.x);
+  angulo = angulo * RAD_TO_DEG;
+  angulo = angulo - declinacion;
+  
+  Serial.print("AnguloX-N: ");
+  Serial.print(angulo,0);  
+  if(angulo < 0) angulo = angulo + 360;
+  Serial.print("N:");
+  Serial.println(angulo,0);
+
+  lcd_i2c.setCursor(1,0);
+  lcd_i2c.print("N:" + String(angulo));
+
+  if (int(angulo) == 0) // CONVIERTO FLOAT A INT PARA EVITAR LOS DECIMALES EN EL 0, CUANDO SE LLEGUE A APUNTAR AL NORTE MAGNÉTICO DENTRO DE 0 A 0,9 ACTIVO EL LED, ES MUY DIFICL APUNTAR A MANO EXACTAMENTE A 0,0000
+  {
+     digitalWrite(Pin_Led, HIGH);
+  }else{
+     digitalWrite(Pin_Led, LOW);   
+  }
+  delay(500);
+  
+}
