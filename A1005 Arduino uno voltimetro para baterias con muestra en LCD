@@ -1,0 +1,76 @@
+/*
+    ARDUINO VOLTIMETRO DC ( CORRIENTE CONTINUA ) CON MUESTRA EN LCD.
+    AUTOR : JOSE MARIA MENDEZ RUIZ
+    SEPTIEMBRE 2022
+    CODIGO LIBRE PARA UTILIZAR COMO QUIERAS
+
+    UTILIZO LA LIBRERIA DE I2C, DE AHI MISMO LA PODEIS DESCARGAR E INSTALAR COMO SE INDICA EN DICHA WEB
+    LiquidCrystal_I2C: https://github.com/fdebrabander/Arduino-LiquidCrystal-I2C-library.  
+
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+               ********* CONEXIONES DESDE EL LCD HASTA NUESTRO ARDUINO NANO *********************
+               
+  LA DIRECCION SE ASIGNA CON LOS PUENTES QUE TIENE LA PLACA DEL MODULO, SI OS FIJAIS LOS VEREIS DEBAJO DE LA RESISTENCIA AJUSTABLE, A LA IZQUIERDA DEL PIN SDL , HAY UNOS PUENTES NORMALMENTE ABIERTOS ( PONE A0 , A1, A2 )
+   A0 - A1 - A2   <  A ES ABIERTO ;  C ES CERRADO ES DECIR CON UN PUENTE DE SOLDADURA
+   C    C    C = 0x20
+   C    C    A = 0x21
+   C    A    C = 0x22
+   C    A    A = 0x23
+   A    C    C = 0x24
+   A    C    A = 0x25
+   A    A    C = 0x26
+   A    A    A = 0x27
+
+ 
+
+*/
+
+#include <LiquidCrystal_I2C.h>  // Librería para manejar el LCD a través del I2C
+
+
+// DECLARAMOS LAS VARIABLES QUE VAMOS A UTILIZAR
+int Pin_DC = A3;               // INDICAMOS EL PIN QUE VAMOS A UTILIZAR PARA LEER EL VOLTAJE
+float resistencia_1 = 100000;  // INDICAMOS EL VALOR DE LA RESISTENCIA 1 EN OHMIOS, EN NUESTRO CASO 100K
+float resistencia_2 = 10000;   // INDICAMOS EL VALOR DE LA RESISTENCIA 2 EN OHMIOS, EN NUESTRO CASO 10K
+
+LiquidCrystal_I2C lcd_i2c(0x27, 16, 2); // indicamos cuantos caracteres y lineas tiene nuestro lcd
+ 
+void setup()
+{
+  Serial.begin(9600);             // INICIAMOS COMUNICACIONES SERIE , SI SOLO UTILIZAMOS EL LCD, PODEMOS QUITAR ESTA LINEA
+
+  // Iniciamos el LCD
+  lcd_i2c.init();
+  lcd_i2c.backlight();
+  lcd_i2c.clear();
+}
+ 
+void loop()
+{
+  String frase;
+  float lee_dc = (analogRead(Pin_DC)*5) / 1024.0; // Recogemos el voltaje que se recibe por el PIN_CD
+  float voltaje = (lee_dc / ( resistencia_2 / (resistencia_1 + resistencia_2)));  // Aplicamos la fórmula
+  if (voltaje < 0.2) voltaje = 0.0;
+
+  frase = String(voltaje) + " Voltios";
+
+  Serial.println (frase); // ENVIAMOS INFORMACION AL MONITOR SERIE, SI SOLO UTILIZAMOS EL LCD, PODEMOS QUITAR ESTA LINEA
+
+  lcd_i2c.setCursor(1, 1);
+  lcd_i2c.print(frase);
+
+  delay(500) ; // Aplicamos una pausa de medio segundo entre lecturas
+}
