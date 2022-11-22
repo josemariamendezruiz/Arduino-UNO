@@ -23,7 +23,7 @@ int led_calibrado  = 3;         // Este led parpadeará mientras el sensor se es
 int salida = 4;                 // Pin de salida para cuando queremos activar algo , como una sirena
 int sensorpir = 5;              // Pin de entrada a nuestro microcontrolador , viene de la salida del sensor.
 int tiempo_calibracion = 30;    // Este tiempo es el que necesita el sensor cuando se enciende por primera vez, este valor está en el datasheet ( hoja de especificacione del fabricante )
-int tiempo_activacion = 5;      // Cuanto tiempo queremos que este activo cuando detecta presencia, por ejemplo cuanto tiempo queremos que esté sonando la alarma
+int tiempo_activacion = 5000;   // Cuanto tiempo queremos que este activo cuando detecta presencia, por ejemplo cuanto tiempo queremos que esté sonando la alarma
 int j;                          // variable para bucles
 
 void setup()
